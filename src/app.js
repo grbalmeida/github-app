@@ -9,7 +9,9 @@ class App extends Component {
         this.state = {
             userInfo: {
                 username: 'Gilvan Ribeiro',
-                repos: 13,
+                photo: 'https://avatars3.githubusercontent.com/u/40013090?v=4',
+                login: 'grbalmeida',
+                repos: 14,
                 followers: 13,
                 following: 31
             },
