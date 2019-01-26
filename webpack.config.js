@@ -4,6 +4,8 @@ const path = require('path')
 const url = 'http://localhost:3000'
 const webpack = require('webpack')
 
+const HtmlPlugin = require('html-webpack-plugin')
+
 module.exports = {
 	devtool: 'source-map',
 	entry: [
@@ -14,11 +16,15 @@ module.exports = {
 	],
 	output: {
 		path: path.join(__dirname, 'dist'),
-		filename: 'bundle.js',
-		publicPath: '/static/'
+        filename: '[name]-[hash].js',
+		publicPath: ''
 	},
 	plugins: [
-		new webpack.HotModuleReplacementPlugin()
+        new webpack.HotModuleReplacementPlugin(),
+        new HtmlPlugin({
+            title: 'GitHub app',
+            template: path.join(__dirname, 'src', 'html', 'template.html')
+        })
 	],
 	module: {
 		preLoaders: [{
