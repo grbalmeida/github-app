@@ -2,7 +2,7 @@
 
 const webpack = require('webpack')
 const WebpackDevServer = require('webpack-dev-server')
-const config = require('./webpack.config')
+const config = require('./webpack/dev.config')
 const port = 3000
 const url = `http://localhost:${port}`
 
