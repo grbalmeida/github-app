@@ -1,30 +1,44 @@
 'use strict'
 
 import React, { PropTypes } from 'react'
+import Pagination from '../pagination/index'
 import './repos.css'
 
-const Repos = ({ className, title, repos }) => (
+const Repos = ({ className, title, repos, handlePagination }) => (
   <div className={className}>
     <h2>{title}</h2>
     <ul>
-      {repos.map((repo, index) => (
+      {repos.repos.map((repo, index) => (
         <li key={index}>
           <a href={repo.link}>{repo.name}</a>
         </li>
       ))}
     </ul>
+    <Pagination 
+      total={repos.pagination.total} 
+      activePage={repos.pagination.activePage} 
+      onClick={handlePagination} />
   </div>
 )
 
 Repos.defaultProps = {
-  className: '',
-  repos: []
+  className: ''
 }
 
 Repos.propTypes = {
   className: PropTypes.string,
   title: PropTypes.string.isRequired,
-  repos: PropTypes.array
+  handlePagination: PropTypes.func.isRequired,
+  repos: PropTypes.shape({
+    repos: PropTypes.arrayOf(PropTypes.shape({
+      link: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired
+    })).isRequired,
+    pagination: PropTypes.shape({
+      total: PropTypes.number,
+      activePage: PropTypes.number
+    })
+  })
 }
 
 export default Repos

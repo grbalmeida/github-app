@@ -4,21 +4,31 @@ import React, { Component } from 'react'
 import AppContent from './components/app-content'
 import ajax from '@fdaciuk/ajax'
 
+const initialReposState = {
+  repos: [],
+  pagination: {
+    total: 1,
+    activePage: 1
+  }
+}
+
 class App extends Component {
   constructor () {
     super()
     this.state = {
       userInfo: null,
-      repos: [],
-      starred: [],
+      repos: initialReposState,
+      starred: initialReposState,
       isFetching: false
     }
+
+    this.perPage = 3
   }
 
-  getGitHubApiUrl (username, type) {
+  getGitHubApiUrl (username, type, page = 1) {
     const internalUser = username ? `/${username}` : ''
     const internalType = type ? `/${type}` : ''
-    return `https://api.github.com/users${internalUser}${internalType}`
+    return `https://api.github.com/users${internalUser}${internalType}?per_page=${this.perPage}&page=${page}`
   }
 
   handleSearch (e) {
@@ -39,24 +49,33 @@ class App extends Component {
             followers: result.followers,
             following: result.following
           },
-          repos: [],
-          starred: []
+          repos: initialReposState,
+          starred: initialReposState
         }))
         .always(() => this.setState({ isFetching: false }))
     }
   }
 
-  getRepos (type) {
+  getRepos (type, page) {
     return (e) => {
       const login = this.state.userInfo.login
       ajax()
-        .get(this.getGitHubApiUrl(login, type))
-        .then(result => {
+        .get(this.getGitHubApiUrl(login, type, page))
+        .then((result, xhr) => {
+          const linkHeader = xhr.getResponseHeader('Link') || ''
+          const totalPagesMatch = linkHeader.match(/&page=(\d+)>; rel="last/)
+
           this.setState({
-            [type]: result.map(repo => ({
-              name: repo.name,
-              link: repo.html_url
-            }))
+            [type]: {
+              repos: result.map(repo => ({
+                name: repo.name,
+                link: repo.html_url
+              })),
+              pagination: {
+                total: totalPagesMatch ? +totalPagesMatch[1] : this.state[type].pagination.total,
+                activePage: page
+              }
+            }
           })
         })
     }
@@ -68,7 +87,8 @@ class App extends Component {
         {...this.state}
         handleSearch={(e) => this.handleSearch(e)}
         getRepos={this.getRepos('repos')}
-        getStarred={this.getRepos('starred')} />
+        getStarred={this.getRepos('starred')}
+        handlePagination={(type, page) => this.getRepos(type, page)()} />
     )
   }
 }
